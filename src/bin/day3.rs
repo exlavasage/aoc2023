@@ -27,6 +27,15 @@ impl Part {
         }
         false
     }
+
+    fn is_adjacent(&self, (col, row): (usize, usize)) -> bool {
+        let min_col = self.col.checked_add_signed(-1).unwrap_or(0);
+        let min_row = self.row.checked_add_signed(-1).unwrap_or(0);
+        let max_col = self.col + (self.value.ilog10() as usize) + 1;
+        let max_row = self.row + 1;
+
+        min_col <= col && max_col >= col && min_row <= row && max_row >= row
+    }
 }
 
 fn read() {
@@ -35,6 +44,7 @@ fn read() {
 
     let mut parts = Vec::new();
     let mut symbols = HashSet::new();
+    let mut gears = HashSet::new();
 
     for (row, line) in reader.lines().filter_map(|line| line.ok()).enumerate() {
         let mut col = 0;
@@ -56,7 +66,11 @@ fn read() {
             } else if (line[col] as char) == '.' {
                 col += 1
             } else {
+                if (line[col] as char) == '*' {
+                    gears.insert((col, row));
+                }
                 symbols.insert((col, row));
+
                 col += 1
             }
         }
@@ -68,13 +82,29 @@ fn read() {
             if p.symbol_adjacent(&symbols) {
                 Some(p.value)
             } else {
-                println!("Not counting: {}", p.value);
                 None
             }
         })
         .sum();
 
     println!("Sum: {}", sum);
+
+    let sum: u32 = gears
+        .iter()
+        .filter_map(|(col, row)| {
+            let p: Vec<&Part> = parts
+                .iter()
+                .filter(|p| p.is_adjacent((*col, *row)))
+                .collect();
+            if p.len() == 2 {
+                Some(p[0].value * p[1].value)
+            } else {
+                None
+            }
+        })
+        .sum();
+
+    println!("Gear Sum: {}", sum);
 }
 
 fn main() {
