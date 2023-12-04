@@ -44,7 +44,7 @@ fn parse_line(input: &str) -> u32 {
 }
 
 fn calibrate() -> u32 {
-    let file = File::open("input/d1p1.txt").expect("Failed to open input");
+    let file = File::open("input/day1.txt").expect("Failed to open input");
     let reader = BufReader::new(file);
 
     let sum: u32 = reader
